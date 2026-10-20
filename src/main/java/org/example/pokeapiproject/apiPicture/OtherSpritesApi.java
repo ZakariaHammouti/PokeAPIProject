@@ -1,4 +1,4 @@
-package apiPicture;
+package org.example.pokeapiproject.apiPicture;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 

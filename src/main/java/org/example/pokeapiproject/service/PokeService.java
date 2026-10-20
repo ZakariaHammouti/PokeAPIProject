@@ -20,24 +20,19 @@ public class PokeService {
 
     private final IdService idService;
     private final PokeRepo pokeRepo;
-    private final RestClient restClient;
 
-    public PokeService(PokeRepo pokeRepo, RestClient.Builder restClientBuilder,
+    public final ExternalClientApi externalClientApi;
+
+    public PokeService(PokeRepo pokeRepo, ExternalClientApi externalClientApi,
                        IdService idService) {
         this.pokeRepo = pokeRepo;
         this.idService = idService;
-        this.restClient = restClientBuilder
-                .baseUrl("https://pokeapi.co/api/v2/pokemon/")
-                .build();
+        this.externalClientApi = externalClientApi;
     }
 
-    ///  api/pokemon
     /// got only from first page
-    // public List<PokemonCharacter> getAllPokemon() {
     public PokemonResponse getAllPokemon() {
-        return restClient.get()
-                .retrieve()
-                .body(PokemonResponse.class);
+        return externalClientApi.getAllPokemon();
     }
 
     private PokemonCharacterResponseDTO mapPokemonCharacterResponseDTO(PokemonCharacterResponseRaw response,
@@ -59,10 +54,8 @@ public class PokeService {
 
     public PokemonCharacterResponseDTO getPokemonByName(String name) {
         try {
-            PokemonCharacterResponseRaw response = restClient.get()
-                    .uri(name)
-                    .retrieve()
-                    .body(PokemonCharacterResponseRaw.class);
+            PokemonCharacterResponseRaw response =
+                    externalClientApi.getPokemonByName(name);
 
             if (response == null) {
                 throw new ExceptionNotFound(
@@ -84,10 +77,8 @@ public class PokeService {
 
         //Prüfen, ob es in der External API existiert
         try {
-            response = restClient.get()
-                    .uri(favoriteDTO.pokemonName())
-                    .retrieve()
-                    .body(PokemonCharacterResponseRaw.class);
+            response =
+                    externalClientApi.getPokemonByName(favoriteDTO.pokemonName());
 
         } catch (HttpClientErrorException.NotFound e) {
             throw new ExceptionNotFound(

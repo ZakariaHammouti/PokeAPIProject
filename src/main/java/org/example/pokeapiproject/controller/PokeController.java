@@ -1,18 +1,18 @@
 package org.example.pokeapiproject.controller;
 
 import org.example.pokeapiproject.api.PokemonResponse;
+import org.example.pokeapiproject.dto.FavoriteDTO;
 import org.example.pokeapiproject.dto.PokemonCharacterResponseDTO;
 import org.example.pokeapiproject.dto.PokemonCharacterResponseRaw;
 import org.example.pokeapiproject.service.PokeService;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Optional;
 
 
 @RestController
-@RequestMapping("/api/pokemon")
+@RequestMapping("/api")
 @Validated
 public class PokeController {
 
@@ -29,8 +29,13 @@ public class PokeController {
         return service.getAllPokemon();
     }
 
-    @GetMapping("/{name}")
+    @GetMapping("/pokemon/{name}")
     public PokemonCharacterResponseDTO getPokemonByName(@PathVariable String name) {
         return service.getPokemonByName(name);
+    }
+
+    @PostMapping("/collection")
+    public PokemonCharacterResponseDTO postPokemonByName(@RequestBody FavoriteDTO favoriteDTO) {
+        return service.postPokemonByName(favoriteDTO);
     }
 }

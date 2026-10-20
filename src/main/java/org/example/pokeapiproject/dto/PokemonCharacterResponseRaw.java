@@ -1,7 +1,7 @@
 package org.example.pokeapiproject.dto;
 
-import apiPicture.SpritesApi;
-import apiPicture.TypesApi;
+import org.example.pokeapiproject.apiPicture.SpritesApi;
+import org.example.pokeapiproject.apiPicture.TypesApi;
 
 import java.util.List;
 

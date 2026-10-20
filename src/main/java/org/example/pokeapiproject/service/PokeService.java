@@ -1,13 +1,17 @@
 package org.example.pokeapiproject.service;
 
+import com.mongodb.internal.async.AsyncBatchCursor;
+import jakarta.validation.Valid;
 import org.example.pokeapiproject.api.PokemonResponse;
 import org.example.pokeapiproject.dto.FavoriteDTO;
 import org.example.pokeapiproject.dto.PokemonCharacterResponseDTO;
 import org.example.pokeapiproject.dto.PokemonCharacterResponseRaw;
+import org.example.pokeapiproject.dto.UpdateFavoriteDTO;
 import org.example.pokeapiproject.model.IdService;
 import org.example.pokeapiproject.repository.PokeRepo;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.server.ResponseStatusException;
@@ -84,7 +88,7 @@ public class PokeService {
     public PokemonCharacterResponseDTO postPokemonByName(FavoriteDTO favoriteDTO) {
         PokemonCharacterResponseRaw response;
 
-        //Prüfen ob es in der External API existiert
+        //Prüfen, ob es in der External API existiert
         try {
             response = restClient.get()
                     .uri(favoriteDTO.pokemonName())
@@ -142,5 +146,29 @@ public class PokeService {
             );
         }
         pokeRepo.deleteById(id);
+    }
+
+    public PokemonCharacterResponseDTO updatePokemonByName(UpdateFavoriteDTO nickNameDto,
+                                                           String id) {
+        PokemonCharacterResponseDTO responseDTO = pokeRepo.findById(id).orElse(null);
+
+        if (responseDTO == null) {
+            throw new ResponseStatusException(
+                    HttpStatus.NOT_FOUND,
+                    id + "' existiert nicht"
+            );
+        }
+
+        return pokeRepo.save(PokemonCharacterResponseDTO.builder()
+                .id(id)
+                .pokemonId(responseDTO.pokemonId())
+                .nickname(nickNameDto.nickname())
+                .pokemonName(responseDTO.pokemonName())
+                .pictureUrl(responseDTO.pictureUrl())
+                .height(responseDTO.height())
+                .weight(responseDTO.weight())
+                //gefordert nur Namen rausholen, nicht die ganze types Liste
+                .types(responseDTO.types())
+                .build());
     }
 }

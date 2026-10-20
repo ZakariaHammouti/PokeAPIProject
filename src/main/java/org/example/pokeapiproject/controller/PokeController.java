@@ -2,19 +2,17 @@ package org.example.pokeapiproject.controller;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import org.example.pokeapiproject.api.PokemonResponse;
 import org.example.pokeapiproject.dto.FavoriteDTO;
 import org.example.pokeapiproject.dto.PokemonCharacterResponseDTO;
-import org.example.pokeapiproject.dto.PokemonCharacterResponseRaw;
+import org.example.pokeapiproject.dto.UpdateFavoriteDTO;
 import org.example.pokeapiproject.service.PokeService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 
 @RestController
@@ -78,5 +76,16 @@ public class PokeController {
         service.deletePokemonById(id);
 
         return ResponseEntity.noContent().build();
+    }
+
+    @PutMapping("/collection/{id}")
+    public PokemonCharacterResponseDTO updatePokemonByName(@RequestBody
+                                                           @Valid
+                                                           UpdateFavoriteDTO nickNameDto,
+                                                           @PathVariable
+                                                           @NotBlank(message = "name must not be blank")
+                                                           @Size(message = "size must be 36 digits long", min = 36, max = 36)
+                                                           String id) {
+        return service.updatePokemonByName(nickNameDto, id);
     }
 }

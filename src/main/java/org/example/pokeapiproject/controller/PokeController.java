@@ -34,11 +34,11 @@ public class PokeController {
     }
 
     @GetMapping("/pokemon/{name}")
-    public PokemonCharacterResponseDTO getPokemonByName(@PathVariable
-                                                        @NotBlank(message = "name must not be blank")
-                                                        @Size(message = "at least 2 letters and max. 20 letters",
-                                                                min = 2, max = 20)
-                                                        String name) {
+    public PokemonCharacterResponseDTO getPokemonByNameFromPokeApi(@PathVariable
+                                                                   @NotBlank(message = "name must not be blank")
+                                                                   @Size(message = "at least 2 letters and max. 20 letters",
+                                                                           min = 2, max = 20)
+                                                                   String name) {
         return service.getPokemonByName(name);
     }
 
@@ -58,7 +58,7 @@ public class PokeController {
     public PokemonCharacterResponseDTO getPokemonById(
             @PathVariable
             @NotBlank(message = "name must not be blank")
-            @Size(message = "size must be 36 digits long", min = 36, max = 36)
+            @Size(message = "size must be 36 characters long", min = 36, max = 36)
 
             String id
     ) {
@@ -70,7 +70,6 @@ public class PokeController {
             @PathVariable
             @NotBlank(message = "name must not be blank")
             @Size(message = "size must be 36 digits long", min = 36, max = 36)
-
             String id
     ) {
         service.deletePokemonById(id);

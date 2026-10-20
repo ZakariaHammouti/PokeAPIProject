@@ -1,23 +1,19 @@
 package org.example.pokeapiproject.service;
 
-import com.mongodb.internal.async.AsyncBatchCursor;
-import jakarta.validation.Valid;
 import org.example.pokeapiproject.api.PokemonResponse;
 import org.example.pokeapiproject.dto.FavoriteDTO;
 import org.example.pokeapiproject.dto.PokemonCharacterResponseDTO;
 import org.example.pokeapiproject.dto.PokemonCharacterResponseRaw;
 import org.example.pokeapiproject.dto.UpdateFavoriteDTO;
+import org.example.pokeapiproject.exceptions.ExceptionAlreadyExists;
+import org.example.pokeapiproject.exceptions.ExceptionNotFound;
 import org.example.pokeapiproject.model.IdService;
 import org.example.pokeapiproject.repository.PokeRepo;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClient;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class PokeService {
@@ -69,18 +65,16 @@ public class PokeService {
                     .body(PokemonCharacterResponseRaw.class);
 
             if (response == null) {
-                throw new ResponseStatusException(
-                        HttpStatus.NOT_FOUND,
-                        "Pokemon '" + name + "' existiert nicht"
+                throw new ExceptionNotFound(
+                        "Pokemon " + name + "' existiert nicht"
                 );
             }
             String DUMMY_ID = "1";
             return mapPokemonCharacterResponseDTO(response, DUMMY_ID, null);
 
         } catch (HttpClientErrorException.NotFound ex) {
-            throw new ResponseStatusException(
-                    HttpStatus.NOT_FOUND,
-                    "Pokemon '" + name + "' existiert nicht"
+            throw new ExceptionNotFound(
+                    "Pokemon " + name + "' existiert nicht"
             );
         }
     }
@@ -96,24 +90,21 @@ public class PokeService {
                     .body(PokemonCharacterResponseRaw.class);
 
         } catch (HttpClientErrorException.NotFound e) {
-            throw new ResponseStatusException(
-                    HttpStatus.NOT_FOUND,
-                    "Pokemon '" + favoriteDTO.pokemonName() + "' existiert nicht"
+            throw new ExceptionNotFound(
+                    "Pokemon " + favoriteDTO.pokemonName() + "' existiert nicht"
             );
         }
 
         if (response == null) {
-            throw new ResponseStatusException(
-                    HttpStatus.NOT_FOUND,
-                    "Pokemon '" + favoriteDTO.pokemonName() + "' existiert nicht"
+            throw new ExceptionNotFound(
+                    "Pokemon " + favoriteDTO.pokemonName() + "' existiert nicht"
             );
         }
 
         //Prüfe, ob in Internal API dieser Name schon existiert
         if (pokeRepo.existsByPokemonNameIgnoreCase(
                 favoriteDTO.pokemonName())) {
-            throw new ResponseStatusException(
-                    HttpStatus.CONFLICT,
+            throw new ExceptionAlreadyExists(
                     "Dieses Pokemon ist bereits als Favorit gespeichert"
             );
         }
@@ -132,17 +123,14 @@ public class PokeService {
 
     public PokemonCharacterResponseDTO getPokemonById(String id) {
         return pokeRepo.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.NOT_FOUND,
-                        "Favorit mit ID '" + id + "' wurde nicht gefunden"
-                ));
+                .orElseThrow(() -> new ExceptionNotFound(
+                        "Favorit mit ID '" + id + "' wurde nicht gefunden"));
     }
 
     public void deletePokemonById(String id) {
         if (!pokeRepo.existsById(id)) {
-            throw new ResponseStatusException(
-                    HttpStatus.NOT_FOUND,
-                    "Favorit mit ID '" + id + "' wurde nicht gefunden"
+            throw new ExceptionNotFound(
+                    "Favorit mit ID " + id + " wurde nicht gefunden"
             );
         }
         pokeRepo.deleteById(id);
@@ -150,14 +138,10 @@ public class PokeService {
 
     public PokemonCharacterResponseDTO updatePokemonByName(UpdateFavoriteDTO nickNameDto,
                                                            String id) {
-        PokemonCharacterResponseDTO responseDTO = pokeRepo.findById(id).orElse(null);
+        PokemonCharacterResponseDTO responseDTO = pokeRepo.findById(id).
+                orElseThrow(() -> new ExceptionNotFound(
+                        "Pokemon mit der " + id + " existiert nicht"));
 
-        if (responseDTO == null) {
-            throw new ResponseStatusException(
-                    HttpStatus.NOT_FOUND,
-                    id + "' existiert nicht"
-            );
-        }
 
         return pokeRepo.save(PokemonCharacterResponseDTO.builder()
                 .id(id)

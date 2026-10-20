@@ -9,5 +9,5 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface PokeRepo extends MongoRepository<PokemonCharacterResponseDTO, String> {
 
-
+    boolean existsByPokemonNameIgnoreCase(String pokemonName);
 }

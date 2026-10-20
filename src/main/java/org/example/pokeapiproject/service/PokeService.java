@@ -80,6 +80,8 @@ public class PokeService {
 
     public PokemonCharacterResponseDTO postPokemonByName(FavoriteDTO favoriteDTO) {
         PokemonCharacterResponseRaw response;
+
+        //Prüfen ob es in der External API existiert
         try {
             response = restClient.get()
                     .uri(favoriteDTO.pokemonName())
@@ -99,7 +101,20 @@ public class PokeService {
                     "Pokemon '" + favoriteDTO.pokemonName() + "' existiert nicht"
             );
         }
+
+        //Prüfe, ob in Internal API dieser Name schon existiert
+        if (pokeRepo.existsByPokemonNameIgnoreCase(
+                favoriteDTO.pokemonName())) {
+            throw new ResponseStatusException(
+                    HttpStatus.CONFLICT,
+                    "Dieses Pokemon ist bereits als Favorit gespeichert"
+            );
+        }
+
         return pokeRepo.save
-                (mapPokemonCharacterResponseDTO(response, idService.createId(), favoriteDTO.nickname()));
+                (mapPokemonCharacterResponseDTO(
+                        response,
+                        idService.createId(),
+                        favoriteDTO.nickname()));
     }
 }

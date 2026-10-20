@@ -12,6 +12,9 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.List;
+import java.util.Optional;
+
 @Service
 public class PokeService {
 
@@ -116,5 +119,28 @@ public class PokeService {
                         response,
                         idService.createId(),
                         favoriteDTO.nickname()));
+    }
+
+    public List<PokemonCharacterResponseDTO> getAllPokemonsCollection() {
+        return pokeRepo.findAll();
+    }
+
+
+    public PokemonCharacterResponseDTO getPokemonById(String id) {
+        return pokeRepo.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "Favorit mit ID '" + id + "' wurde nicht gefunden"
+                ));
+    }
+
+    public void deletePokemonById(String id) {
+        if (!pokeRepo.existsById(id)) {
+            throw new ResponseStatusException(
+                    HttpStatus.NOT_FOUND,
+                    "Favorit mit ID '" + id + "' wurde nicht gefunden"
+            );
+        }
+        pokeRepo.deleteById(id);
     }
 }

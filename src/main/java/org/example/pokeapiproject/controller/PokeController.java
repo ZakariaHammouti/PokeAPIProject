@@ -9,9 +9,11 @@ import org.example.pokeapiproject.dto.FavoriteDTO;
 import org.example.pokeapiproject.dto.PokemonCharacterResponseDTO;
 import org.example.pokeapiproject.dto.PokemonCharacterResponseRaw;
 import org.example.pokeapiproject.service.PokeService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Optional;
 
 
@@ -27,7 +29,7 @@ public class PokeController {
     }
 
     @GetMapping
-    //gibnr die erste Seite zurück
+    //gibt nur die erste Seite von external API zurück
     // public List<PokemonCharacter> getAllPokemon() {
     public PokemonResponse getAllPokemon() {
         return service.getAllPokemon();
@@ -47,5 +49,34 @@ public class PokeController {
                                                          @Valid
                                                          FavoriteDTO favoriteDTO) {
         return service.postPokemonByName(favoriteDTO);
+    }
+
+    @GetMapping("/collection")
+    public List<PokemonCharacterResponseDTO> getAllPokemonsCollection() {
+        return service.getAllPokemonsCollection();
+    }
+
+    @GetMapping("/collection/{id}")
+    public PokemonCharacterResponseDTO getPokemonById(
+            @PathVariable
+            @NotBlank(message = "name must not be blank")
+            @Size(message = "size must be 36 digits long", min = 36, max = 36)
+
+            String id
+    ) {
+        return service.getPokemonById(id);
+    }
+
+    @DeleteMapping("/collection/{id}")
+    public ResponseEntity<Void> deletePokemonById(
+            @PathVariable
+            @NotBlank(message = "name must not be blank")
+            @Size(message = "size must be 36 digits long", min = 36, max = 36)
+
+            String id
+    ) {
+        service.deletePokemonById(id);
+
+        return ResponseEntity.noContent().build();
     }
 }

@@ -5,6 +5,7 @@ import org.example.pokeapiproject.dto.PokemonCharacterResponseDTO;
 import org.example.pokeapiproject.dto.UpdateFavoriteDTO;
 import org.example.pokeapiproject.model.PokemonCharacter;
 import org.example.pokeapiproject.repository.PokeRepo;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,6 +54,10 @@ class PokeControllerTest {
     @Autowired
     private MockRestServiceServer mockRestServiceServer;
 
+    @AfterEach
+    void cleanUp() {
+        pokeRepo.deleteAll();
+    }
 
     @Test
     void getAllPokemon_ShouldReturnListOfPokemon_WhenCalled() throws Exception {

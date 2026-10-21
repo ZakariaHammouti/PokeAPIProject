@@ -9,5 +9,4 @@ public class PokeApiProjectApplication {
     public static void main(String[] args) {
         SpringApplication.run(PokeApiProjectApplication.class, args);
     }
-
 }

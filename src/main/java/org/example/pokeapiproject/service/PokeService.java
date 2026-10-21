@@ -52,19 +52,26 @@ public class PokeService {
                 .build();
     }
 
+    private ExceptionNotFound pokemonNotFound(String name) {
+        return new ExceptionNotFound(
+                "Pokemon '" + name + "' existiert nicht"
+        );
+    }
+
     public PokemonCharacterResponseDTO getPokemonByName(String name) {
         try {
             PokemonCharacterResponseRaw response =
                     externalClientApi.getPokemonByName(name);
-
+            //Client antwortet mit null
             if (response == null) {
                 throw new ExceptionNotFound(
-                        "Pokemon " + name + "' existiert nicht"
+                        "Pokemon " + name + " existiert nicht." +
+                                "External API antwortet mit null"
                 );
             }
             String DUMMY_ID = "1";
             return mapPokemonCharacterResponseDTO(response, DUMMY_ID, null);
-
+            //Client antwortet mit existiert nicht
         } catch (HttpClientErrorException.NotFound ex) {
             throw new ExceptionNotFound(
                     "Pokemon " + name + "' existiert nicht"

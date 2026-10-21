@@ -6,6 +6,7 @@ import org.example.pokeapiproject.dto.FavoriteDTO;
 import org.example.pokeapiproject.dto.PokemonCharacterResponseDTO;
 import org.example.pokeapiproject.dto.PokemonCharacterResponseRaw;
 import org.example.pokeapiproject.dto.UpdateFavoriteDTO;
+import org.example.pokeapiproject.exceptions.ExceptionAlreadyExists;
 import org.example.pokeapiproject.exceptions.ExceptionNotFound;
 import org.example.pokeapiproject.model.IdService;
 import org.example.pokeapiproject.model.PokemonCharacter;
@@ -28,7 +29,7 @@ class PokeServiceTest {
         PokeRepo pokeRepo = mock(PokeRepo.class);
 
         PokemonResponse expected = new PokemonResponse(
-                "1351",
+                1351,
                 "https://pokeapi.co/api/v2/pokemon?offset=20&limit=20",
                 null,
                 List.of(
@@ -201,6 +202,85 @@ class PokeServiceTest {
     }
 
     @Test
+    void getPokemonByName_ShouldThrowExceptionNotFound_WhenResponseIsNull() {
+
+        // Given
+        ExternalClientApi externalClientApi = mock(ExternalClientApi.class);
+        PokeRepo pokeRepo = mock(PokeRepo.class);
+        IdService idService = mock(IdService.class);
+
+        PokeService pokeService =
+                new PokeService(pokeRepo, externalClientApi, idService);
+
+        when(externalClientApi.getPokemonByName("ghgho"))
+                .thenReturn(null);
+
+        // When & Then
+        ExceptionNotFound exception = assertThrows(
+                ExceptionNotFound.class,
+                () -> pokeService.getPokemonByName("ghgho")
+        );
+
+        assertEquals("Pokemon ghgho existiert nicht." +
+                        "External API antwortet mit null",
+                exception.getMessage()
+        );
+
+        verify(externalClientApi).getPokemonByName("ghgho");
+    }
+
+    @Test
+    void postPokemonByName_ShouldThrowExceptionAlreadyExists_WhenPokemonAlreadyExists() {
+
+        // GIVEN
+        // Given
+        ExternalClientApi externalClientApi = mock(ExternalClientApi.class);
+        PokeRepo pokeRepo = mock(PokeRepo.class);
+        IdService idService = mock(IdService.class);
+
+        PokeService pokeService =
+                new PokeService(pokeRepo, externalClientApi, idService);
+
+        FavoriteDTO favoriteDTO = new FavoriteDTO("bulbasaur", "asffff");
+
+        PokemonCharacterResponseRaw rawResponse =
+                new PokemonCharacterResponseRaw(
+                        1,
+                        "bulbasaur",
+                        7,
+                        69,
+                        new SpritesApi(
+                                new OtherSpritesApi(
+                                        new OfficialArtWorkApi(
+                                                "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/1.png"
+                                        )
+                                )
+                        ),
+                        List.of(
+                                new TypesApi(new TypeApi("grass")),
+                                new TypesApi(new TypeApi("poison"))
+                        )
+                );
+
+        when(externalClientApi.getPokemonByName("bulbasaur"))
+                .thenReturn(rawResponse);
+
+        when(pokeRepo.existsByPokemonNameIgnoreCase("bulbasaur"))
+                .thenReturn(true);
+
+        // WHEN & THEN
+        assertThrows(
+                ExceptionAlreadyExists.class,
+                () -> pokeService.postPokemonByName(favoriteDTO)
+        );
+
+        // VERIFY
+        verify(externalClientApi).getPokemonByName("bulbasaur");
+        verify(pokeRepo).existsByPokemonNameIgnoreCase("bulbasaur");
+        verify(pokeRepo, never()).save(any(PokemonCharacterResponseDTO.class));
+    }
+
+    @Test
     void getAllPokemonsCollection_ShouldReturnExpectedPokemonList() {
 // Given
         PokeRepo pokeRepo = mock(PokeRepo.class);
@@ -363,7 +443,7 @@ class PokeServiceTest {
 
         PokemonCharacterResponseDTO actual =
                 pokeService.updatePokemonByName(updateDTO, id);
-        
+
         // Then
         assertEquals(id, actual.id());
         assertEquals("Fan", actual.nickname());

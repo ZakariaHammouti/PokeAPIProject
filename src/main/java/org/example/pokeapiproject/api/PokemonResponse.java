@@ -5,7 +5,7 @@ import org.example.pokeapiproject.model.PokemonCharacter;
 import java.util.List;
 
 public record PokemonResponse(
-        String count,
+        Integer count,
         String next,
         String previous,
         List<PokemonCharacter> results

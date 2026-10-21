@@ -69,7 +69,7 @@ public class PokeController {
     public ResponseEntity<Void> deletePokemonById(
             @PathVariable
             @NotBlank(message = "name must not be blank")
-            @Size(message = "size must be 36 digits long", min = 36, max = 36)
+            @Size(message = "size od id must be 36 digits long", min = 36, max = 36)
             String id
     ) {
         service.deletePokemonById(id);

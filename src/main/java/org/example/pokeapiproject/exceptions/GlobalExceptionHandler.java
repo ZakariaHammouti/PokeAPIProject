@@ -119,10 +119,9 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
             WebRequest request) {
 
         ErrorMessage error = new ErrorMessage(
-                "Der angeforderte ist nicht implementiert",
+                "Der angeforderte Endpoint ist nicht implementiert",
                 LocalDateTime.now()
         );
-
         return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
     }
 
@@ -144,5 +143,4 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                 HttpStatus.METHOD_NOT_ALLOWED
         );
     }
-
 }
